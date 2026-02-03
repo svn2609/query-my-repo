@@ -50,7 +50,7 @@ export function AppSidebar() {
       <Sidebar collapsible="icon" variant="floating">
         <SidebarHeader>
             <div className="flex items-center gap-2">
-                <img src="./undraw_file-search.svg" width={40} height={40}></img>
+                <img src="./logo.svg" width={50} height={50}></img>
                 {open && (<h1 className='text-xl font-bold text-primary/80'>Query My Repo</h1>)}
             </div>
         </SidebarHeader>

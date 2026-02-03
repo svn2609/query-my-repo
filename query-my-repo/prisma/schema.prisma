@@ -22,6 +22,8 @@ model User {
     credits Int @default(150)
 
     userToProjects UserToProject[]
+
+    questionsAsked Question[]
 }
 
 model Project {
@@ -38,6 +40,9 @@ model Project {
     commits Commit[]
 
     SourceCodeEmbedding SourceCodeEmbedding[]
+
+    savedQuestion Question[]
+    meetings Meeting[]
 }
 
 model UserToProject {
@@ -81,4 +86,58 @@ model SourceCodeEmbedding {
 
     projectId String
     project Project @relation(fields: [projectId], references: [id])
+}
+
+model Question {
+    id       String @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    
+    question String
+    answer   String
+
+    filesReferenced Json?
+
+    projectId String
+    project   Project @relation(fields: [projectId], references: [id])
+
+    user   User   @relation(fields: [userId], references: [id])
+    userId String
+}
+
+model Meeting {
+    id   String @id @default(cuid())
+
+    name String
+    meetingUrl  String
+
+    projectId String
+    project   Project @relation(fields: [projectId], references: [id])
+
+    status MeetingStatus @default(PROCESSING)
+    issues Issue[]
+
+    createdAt         DateTime           @default(now())
+    updatedAt         DateTime           @updatedAt
+}
+
+enum MeetingStatus {
+    PROCESSING
+    COMPLETED
+}
+
+model Issue {
+    id       String  @id @default(cuid())
+
+    start    String
+    end      String
+    gist     String?
+    headline String?
+    summary  String?
+
+    meetingId String
+    meeting   Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }
