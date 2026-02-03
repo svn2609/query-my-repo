@@ -1,7 +1,6 @@
 import { db } from '@/server/db';
 import { auth, clerkClient } from '@clerk/nextjs/server';
 import { notFound, redirect } from 'next/navigation';
-import React from 'react'
 
 const SyncUser = async () => {
   const {userId} =await auth();
@@ -15,8 +14,8 @@ const SyncUser = async () => {
   }
   await db.user.upsert ({
     where: {
-        //emailAddress: user.emailAddresses[0]?.emailAddress ?? "",
-        id: userId,
+        emailAddress: user.emailAddresses[0]?.emailAddress ?? "",
+        //id: userId,
     },
     update : {
         imageUrl: user.imageUrl,
