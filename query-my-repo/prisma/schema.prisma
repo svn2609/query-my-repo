@@ -24,6 +24,8 @@ model User {
     userToProjects UserToProject[]
 
     questionsAsked Question[]
+
+    // StripeTransaction StripeTransaction[]
 }
 
 model Project {
@@ -141,3 +143,14 @@ model Issue {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }
+
+// model StripeTransaction {
+//     id        String   @id @default(cuid())
+//     createdAt DateTime @default(now())
+
+//     userId  String
+//     credits Int
+
+//     customerId String
+//     user       User   @relation(fields: [userId], references: [id])
+// }

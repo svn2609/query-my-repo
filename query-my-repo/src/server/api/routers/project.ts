@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { pollCommits } from "@/lib/github";
-import { indexGithubRepo } from "@/lib/github-loader";
+import { checkCredits, indexGithubRepo } from "@/lib/github-loader";
 
 export const projectRouter = createTRPCRouter ({
   
@@ -12,7 +12,14 @@ export const projectRouter = createTRPCRouter ({
         githubToken: z.string().optional()
     }))
     .mutation(async({ctx,input}) => {
-        const project = await ctx.db.project.create({
+        
+      // const user = await ctx.db.user.findUnique({ where: { id: ctx.user.userId! } })
+      // if (!user) throw new Error("User not found")
+      // const currentCredits = user.credits || 0
+      // const fileCount = await checkCredits(input.githubUrl, input.githubToken)
+      // if (currentCredits < fileCount) throw new Error("Not enough credits")
+
+      const project = await ctx.db.project.create({
             data: {
                 gitHubUrl: input.githubUrl,
                 name: input.name,
@@ -122,5 +129,23 @@ export const projectRouter = createTRPCRouter ({
       archiveProject: protectedProcedure.input(z.object({ projectId: z.string() })).mutation(async ({ ctx, input }) => {
         await ctx.db.project.update({ where: { id: input.projectId }, data: { deletedAt: new Date() } });
       }),
+
+      getMyCredits: protectedProcedure.query(async ({ ctx }) => {
+        const user = await ctx.db.user.findUnique({ where: { id: ctx.user.userId! } })
+        return user?.credits || 0
+      }),
+    
+      checkCredits: protectedProcedure.input(z.object({ githubUrl: z.string().min(1), githubToken: z.string().optional() })).
+        mutation(async ({ ctx, input }) => {
+          const fileCount = await checkCredits(input.githubUrl, input.githubToken)
+          const user = await ctx.db.user.findUnique({ where: { id: ctx.user.userId! } })
+          return {
+            credits: user?.credits || 0,
+            fileCount,
+          }
+        }),
       
+        // getStripeTransactions: protectedProcedure.query(async ({ ctx }) => {
+        //   return await ctx.db.stripeTransaction.findMany({ where: { userId: ctx.user.userId! } });
+        // }),
 })
